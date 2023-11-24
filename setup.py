@@ -5,6 +5,7 @@ setup(
     version='0.0.1',
     author='Darshan P.',
     author_email='drshnp@outlook.com',
+    license='MIT'
     description='A CLI for managing Twitter interactions and credentials',
     long_description=open('README.md').read(),
     long_description_content_type='text/markdown',
