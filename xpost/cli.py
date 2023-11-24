@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from .encrypt import * 
+from .encrypt import *
 from .engine import *
 import argparse
 import json
@@ -7,6 +7,7 @@ import sys
 import tweepy
 import logging
 import fire
+
 
 def tweet():
     """
@@ -21,24 +22,32 @@ def tweet():
     - --post: Path to the tweet file for posting.
     - --delete: Tweet ID to delete a tweet.
     """
-    parser = argparse.ArgumentParser(description="Twitter Bot CLI - Tweeting Operations")
-    parser.add_argument("--creds", help="Provide username and password in format username:password", required=False)
+    parser = argparse.ArgumentParser(
+        description="Twitter Bot CLI - Tweeting Operations"
+    )
+    parser.add_argument(
+        "--creds",
+        help="Provide username and password in format username:password",
+        required=False,
+    )
     parser.add_argument("--post", help="Path to the tweet file", required=False)
     parser.add_argument("--delete", help="Tweet ID to delete", required=False)
-    
+
     args = parser.parse_args()
 
     if args.creds:
         try:
-            username, password = args.creds.split(':')
+            username, password = args.creds.split(":")
             apis = CredentialCLI().load(username, password)
             bot = TwitterBot(apis)
         except ValueError:
-            print("Error: Invalid format for --creds. Please use username:password format.")
+            print(
+                "Error: Invalid format for --creds. Please use username:password format."
+            )
             return
 
         if args.post:
-            try:    
+            try:
                 reading_post_file = bot.read_post_file(args.post)
                 tweeted_id = bot.post_tweet(args.post)
                 print(f"\nTweeted:\n{reading_post_file}\n")
@@ -53,6 +62,7 @@ def tweet():
             except Exception as e:
                 print(f"An error occurred while deleting the tweet: {e}")
 
+
 def tweet_config():
     """
     Function to handle configuration operations such as storing and resetting credentials.
@@ -65,29 +75,29 @@ def tweet_config():
     - store: Store credentials for a given username and password.
     - reset: Reset (delete) all stored credentials and data.
     """
-    parser = argparse.ArgumentParser(description="Twitter Bot CLI - Configuration Operations")
-    
+    parser = argparse.ArgumentParser(
+        description="Twitter Bot CLI - Configuration Operations"
+    )
+
     # Subparser for the config argument
-    subparsers = parser.add_subparsers(dest='config_command')
-    
+    subparsers = parser.add_subparsers(dest="config_command")
+
     # Subparser for 'store' command
-    store_parser = subparsers.add_parser('store')
-    store_parser.add_argument('username', help="Username for storing credentials")
-    store_parser.add_argument('password', help="Password for storing credentials")
+    store_parser = subparsers.add_parser("store")
+    store_parser.add_argument("username", help="Username for storing credentials")
+    store_parser.add_argument("password", help="Password for storing credentials")
 
     # Subparser for 'reset' command
-    reset_parser = subparsers.add_parser('reset')
+    reset_parser = subparsers.add_parser("reset")
 
     args = parser.parse_args()
 
-    if args.config_command == 'store':
+    if args.config_command == "store":
         CredentialCLI().store(args.username, args.password)
-    elif args.config_command == 'reset':
+    elif args.config_command == "reset":
         CredentialCLI().reset()
+
 
 if __name__ == "__main__":
     # Example usage: 'python script_name.py tweet' or 'python script_name.py tweet_config'
-    fire.Fire({
-        "tweet": tweet,
-        "tweet_config": tweet_config
-    })
+    fire.Fire({"tweet": tweet, "tweet_config": tweet_config})

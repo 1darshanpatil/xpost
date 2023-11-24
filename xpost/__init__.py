@@ -1,1 +1,3 @@
-__version__="0.0.1"
+from .climod import *
+
+__version__ = "0.0.2"
