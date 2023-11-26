@@ -11,43 +11,13 @@ logging.basicConfig(level=logging.INFO)
 
 
 class TwitterBot:
-    """
-    A class to interact with Twitter using the Tweepy library. This class handles
-    authentication with the Twitter API and provides methods for reading credentials
-    and accessing the API. Requires the Tweepy library and expects Twitter API credentials
-    in a specific JSON format.
-
-    Attributes:
-        creds_file (str): Path to the file containing Twitter API credentials.
-        creds (dict): Twitter API credentials.
-        client (tweepy.Client): Tweepy client for API interaction.
-    """
-
     def __init__(self, creds_file):
-        """
-        Initialize the TwitterBot with credentials. Sets up the Tweepy client for Twitter API interaction.
-
-        Args:
-            creds_file (str): Path to the JSON file with Twitter credentials. The file should
-                              contain keys: BEARER_TOKEN, API_KEY, API_KEY_SECRET,
-                              ACCESS_TOKEN, ACCESS_TOKEN_SECRET.
-        """
         self.creds_file = creds_file
         # self.creds = self.read_credentials()
         self.creds = creds_file
         self.client = self.authenticate()
 
     def read_credentials(self):
-        """
-        Read and return credentials from the credentials file. Expects a JSON file format.
-
-        Returns:
-            dict: The credentials for Twitter API.
-
-        Raises:
-            FileNotFoundError: If the credentials file is not found.
-            JSONDecodeError: If there is an error in parsing the JSON file.
-        """
         try:
             with open(self.creds_file, "r") as file:
                 return json.load(file)
@@ -56,16 +26,6 @@ class TwitterBot:
             sys.exit(1)
 
     def authenticate(self):
-        """
-        Authenticate with Twitter API using credentials. Sets up the Tweepy client.
-
-        Returns:
-            tweepy.Client: The authenticated Tweepy client.
-
-        Raises:
-            KeyError: If a required credential is missing.
-            tweepy.TweepyException: If there is an error during authentication.
-        """
         try:
             return tweepy.Client(
                 bearer_token=self.creds["BEARER_TOKEN"],
@@ -82,19 +42,6 @@ class TwitterBot:
             sys.exit(1)
 
     def read_post_file(self, post_file):
-        """
-        Read and return the tweet message from a plain text file.
-
-        Args:
-            post_file (str): Path to the text file containing the message to be posted.
-
-        Returns:
-            str: The tweet message.
-
-        Raises:
-            FileNotFoundError: If the specified file is not found.
-            Exception: For other errors that occur while reading the file.
-        """
         try:
             with open(post_file, "r") as file:
                 return file.read().strip()
@@ -105,18 +52,6 @@ class TwitterBot:
             sys.exit(1)
 
     def post_tweet(self, post_file):
-        """
-        Post a tweet on Twitter using the message from the specified file.
-
-        Args:
-            post_file (str): Path to the text file containing the message to be posted.
-
-        Returns:
-            str: The ID of the successfully posted tweet.
-
-        Raises:
-            Exception: If the tweet exceeds 280 characters or an error occurs while posting.
-        """
         tweet = self.read_post_file(post_file)
         if len(tweet) > 280:
             logging.error("Tweet exceeds 280 characters. Exiting.")
@@ -133,15 +68,6 @@ class TwitterBot:
             sys.exit(1)
 
     def get_user_details(self):
-        """
-        Retrieve and return the Twitter user details of the authenticated account.
-
-        Returns:
-            dict: A dictionary containing user details such as username.
-
-        Raises:
-            Exception: If an error occurs while fetching user details.
-        """
         try:
             user_details = self.client.get_me()
             username = user_details.data.username
@@ -150,18 +76,6 @@ class TwitterBot:
             logging.error(f"Error retrieving user details: {e}")
 
     def save_tweet_info(self, tweet_id, message=None, delete=False):
-        """
-        Save or remove tweet information in the 'tweets.json' file.
-
-        Args:
-            tweet_id (str): The ID of the tweet.
-            message (str, optional): The tweet message. Defaults to None.
-            delete (bool, optional): Flag to indicate if the tweet is to be deleted. Defaults to False.
-
-        Raises:
-            Exception: For any error that occurs while updating the file.
-        """
-
         if delete == True:
             try:
                 # Load existing tweets and filter out the one to delete
@@ -206,15 +120,6 @@ class TwitterBot:
                 logging.error(f"Error saving tweet info: {e}")
 
     def delete_tweet(self, tweet_id):
-        """
-        Delete a tweet from Twitter based on its ID.
-
-        Args:
-            tweet_id (str): The ID of the tweet to be deleted.
-
-        Raises:
-            Exception: If an error occurs during the deletion process.
-        """
         try:
             self.client.delete_tweet(tweet_id)
             logging.info("Tweet deleted successfully from twitter.com")
@@ -223,30 +128,6 @@ class TwitterBot:
 
 
 def cli():
-    """
-    This function serves as a command-line interface (CLI) for a Twitter bot. It allows users to perform various actions
-    with Twitter through the command line by parsing arguments and invoking the appropriate methods of a TwitterBot object.
-
-    The CLI provides three main functionalities:
-    1. Posting a tweet: Users can specify the path to a file containing the tweet's content using the `--post` argument.
-    2. Deleting a tweet: Users can delete a tweet by providing its ID with the `--delete` argument.
-    3. Specifying credentials: Users must provide the path to a credentials file using the `--creds` argument.
-    This file is required for the bot to authenticate with Twitter's API.
-
-    The function first parses the command-line arguments. If the `--post` argument is provided, it attempts to read
-    the tweet's content from the specified file and then post the tweet, handling any exceptions that occur.
-    If the `--delete` argument is provided, it attempts to delete the tweet with the given ID, also handling exceptions.
-
-    Exceptions during posting or deleting are caught and printed to the console, allowing the user to understand
-    what went wrong without crashing the program.
-
-    Args:
-        None
-
-    Returns:
-        None
-    """
-
     parser = argparse.ArgumentParser(description="Twitter Bot CLI")
     parser.add_argument("--creds", help="Path to the credentials file", required=True)
     parser.add_argument("--post", help="Path to the tweet file", required=False)

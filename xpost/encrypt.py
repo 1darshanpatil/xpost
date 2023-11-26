@@ -1,6 +1,7 @@
 import json
 import fire
 import os
+import time
 import shutil
 import base64
 import cryptography
@@ -10,40 +11,18 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.backends import default_backend
 
 
+def colored(text, color_code):
+    return f"\033[{color_code}m{text}\033[0m"
+
 class CredentialManager:
-    """
-    Manages encryption, decryption, and storage of Twitter API credentials.
-    Uses Fernet symmetric encryption for securing credentials.
-
-    Attributes:
-        username (str): The username associated with the credentials.
-        credentials_file (str): Path to the encrypted credentials file.
-    """
-
     def __init__(self, username):
-        """
-        Initializes the CredentialManager with a username.
-
-        Args:
-            username (str): The username for which the credentials are managed.
-        """
         self.username = username
         self.credentials_file = os.path.expanduser(
-            f"~/.tweet/{username}_encrypted_credentials"
+            f"~/.tweet/{username}-PBKDF2HMAC"
         )
 
     @staticmethod
     def generate_key(password: str):
-        """
-        Generates an encryption key based on the provided password using PBKDF2HMAC.
-
-        Args:
-            password (str): The password used to generate the encryption key.
-
-        Returns:
-            bytes: The generated encryption key.
-        """
-        # Use PBKDF2HMAC to generate a key
         password_bytes = password.encode()
         salt = (
             b"\x10" * 16
@@ -60,16 +39,6 @@ class CredentialManager:
 
     @staticmethod
     def encrypt_data(data: str, password: str):
-        """
-        Encrypts data using Fernet symmetric encryption.
-
-        Args:
-            data (str): The plaintext data to be encrypted.
-            password (str): The password used for generating the encryption key.
-
-        Returns:
-            bytes: The encrypted data.
-        """
         key = CredentialManager.generate_key(password)
         fernet = Fernet(key)
         encrypted_data = fernet.encrypt(data.encode())
@@ -77,28 +46,12 @@ class CredentialManager:
 
     @staticmethod
     def decrypt_data(encrypted_data: bytes, password: str):
-        """
-        Decrypts data that was encrypted with Fernet symmetric encryption.
-
-        Args:
-            encrypted_data (bytes): The data to be decrypted.
-            password (str): The password used for generating the decryption key.
-
-        Returns:
-            str: The decrypted plaintext data.
-        """
         key = CredentialManager.generate_key(password)
         fernet = Fernet(key)
         decrypted_data = fernet.decrypt(encrypted_data)
         return decrypted_data.decode()
 
     def prompt_for_credentials(self):
-        """
-        Prompts the user to enter their Twitter API credentials.
-
-        Returns:
-            dict: A dictionary containing the entered credentials.
-        """
         client_id = input("Enter CLIENT_ID: ")
         client_secret = input("Enter CLIENT_SECRET: ")
         api_key = input("Enter API_KEY: ")
@@ -119,33 +72,13 @@ class CredentialManager:
         return credentials
 
     def save_credentials(self, encrypted_data, password):
-        """
-        Saves encrypted credentials to a file.
-
-        Args:
-            encrypted_data (bytes): The encrypted data to be saved.
-            password (str): The password used for encryption.
-        """
         # encrypted_data = self.encrypt_data(json.dumps(credentials), password)
         os.makedirs(os.path.dirname(self.credentials_file), exist_ok=True)
         with open(self.credentials_file, "wb") as file:
             file.write(encrypted_data)
-        print("Credentials encrypted and stored successfully.")
+        print(colored("Credentials encrypted and stored successfully.", 92))
 
     def load_credentials(self, password):
-        """
-        Loads and decrypts the Twitter API credentials form the stored file.
-
-        Args:
-            password (str): The password used to decrypt the credentials.
-
-        Returns:
-            dict: A dictionary containing the decrypted credentials.
-
-        Raises:
-            FileNotFoundError: If the credentials file does not exist.
-            cryptography.fernet.InvalidToken: If the provided password is incorrect.
-        """
         try:
             with open(self.credentials_file, "rb") as file:
                 encrypted_data = file.read()
@@ -162,15 +95,6 @@ class CredentialManager:
 
 
 def force_delete():
-    """
-    Deletes all user files in the `~/.tweet` directory, including the credentials.
-
-    This method is used to completely remove all stored data related to the TwitterBot
-
-    Raise:
-        Exception: For any unexpected error that occurs during the deletion process.
-
-    """
     tweet_dir = os.path.expanduser("~/.tweet")
     try:
         # Check if the directory exists
@@ -178,42 +102,22 @@ def force_delete():
             # Use shutil.rmtree to delete the directory and all its contents
             shutil.rmtree(tweet_dir)
             print("All user files in ~/.tweet have been successfully deleted.")
+            return "success"
         else:
-            print("No ~/.tweet directory found.")
+            print(colored("No ~/.tweet directory found.", 91))
             print("This could be due to no data was loaded before testing.")
+            return None
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
 
+
+
 class CredentialCLI:
-    """
-    A command-line interface for managing Twitter API credentials. It provides functionalities
-    to load, store, and reset credentials using the CredentialManager class.
-
-    Attributes:
-        manager (CredentialManager): An instance of CredentialManager for handling credentials.
-    """
-
     def __init__(self):
-        """
-        Initializes the CredentialCLI with no CredentialManager instance.
-        """
         self.manager = None
 
     def load(self, usr, passwd):
-        """
-        Loads and returns the Twitter API credentials for a specified user.
-
-        Args:
-            usr (str): The username associated with the credentials.
-            passwd (str): The password to decrypt the credentials.
-
-        Returns:
-            dict: The loaded credentials, if successful.
-
-        Prints:
-            Error message, if an exception occurs.
-        """
         self.manager = CredentialManager(usr)
         try:
             loaded_creds = self.manager.load_credentials(passwd)
@@ -222,46 +126,43 @@ class CredentialCLI:
         except Exception as e:
             print(f"Error: {e}")
 
+
     def store(self, usr, passwd):
-        """
-        Stores Twitter API credentials for a specified user after encrypting them.
-
-        Args:
-            usr (str): The username associated with the credentials.
-            passwd (str): The password to encrypt the credentials.
-
-        Prints:
-            The process of storing credentials and confirmation messages.
-        """
         self.manager = CredentialManager(usr)
         taking_apis = self.manager.prompt_for_credentials()
         encrypted_data = self.manager.encrypt_data(json.dumps(taking_apis), passwd)
-        print("Your encrypted data is:", encrypted_data)
-        print("Saving your encrypted data at: ~/.tweet")
+        
+        print(colored("Saving your encrypted data...", 92))
+        for char in ['\\', '|', '/', '-']:
+            print(f"\r{char}", end="")
+            time.sleep(0.75)
+        
         self.manager.save_credentials(encrypted_data, passwd)
+        print(colored("\rSaving completed. Data stored at: ~/.tweet", 92))
         print("")
-        # print("Please make sure you delete your .bash_history after storing your password!")
+        # Reminder or warning message can be added here if needed, possibly in a different color.
+
 
     def reset(self):
-        """
-        Provides an option to delete all stored credentials and data related to the TwitterBot.
-
-        Prompts the user for confirmation before proceeding with the deletion.
-
-        Prints:
-            Confirmation messages and status of the reset operation.
-        """
-        delte_data = input("You want to delete all the data [Y/n]: ")
-        if delte_data.lower() == "y":
-            confirm_delete = input(
-                "Are you absolutely sure? This action is not recommended and cannot be undone. It will also delete your production API keys. To confirm deletion, type 'Y'. To cancel, type 'N': "
-            )
+        delete_data = input("Do you want to delete all data? [Y/n]: ")
+        if delete_data.lower() == "y":
+            red_warning = colored("WARNING: This will permanently delete all data, including production API keys. Confirm with 'Y' or cancel with 'N': ", 91)
+            confirm_delete = input(red_warning)
+            
             if confirm_delete.lower() in ["y", "yes"]:
-                force_delete()
+                print("Processing deletion", end="")
+                for char in ['.', '..', '...', '....']:
+                    print(f"\rProcessing deletion{char}", end="")
+                    time.sleep(0.5)
+                print("\n")
+                files_deleted = force_delete()
+                if files_deleted == 'success':
+                    print(colored("\rData deletion successfull.       ", 92))   
             else:
-                print("Operation cancelled. Find your files at ~/.tweet")
+                print(colored("Operation cancelled. Your files remain at ~/.tweet", 92))
         else:
-            print("Operation cancelled. Find your files at ~/.tweet")
+            print(colored("Operation cancelled. Your files remain at ~/.tweet", 92))
+
 
 
 if __name__ == "__main__":

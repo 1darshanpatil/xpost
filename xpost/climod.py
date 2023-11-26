@@ -3,86 +3,75 @@ from .encrypt import *
 from .engine import *
 from .encrypt import CredentialCLI
 import json
+import getpass
+import fire
 
 
-def store_credentials(usr, passwd):
-    """
-    Stores user credentials using the CredentialCLI class. This function is designed to
-    securely store the Twitter API credentials encrypted with the provided password.
+def print_color(txt, color_colde):
+    print(colored(txt, color_colde))
 
-    Args:
-        usr (str): The username associated with the Twitter credentials.
-                   This is used as an identifier for the stored credentials.
-        passwd (str): The password used for encrypting the credentials.
-                      It's crucial for the decryption of the stored credentials later.
 
-    Returns:
-        None
-    """
-    cli = CredentialCLI()
-    cli.store(usr, passwd)
+def add_user():
+    username = input("Enter a username to encrypt your APIs: ")
+    password = getpass.getpass("Set a password to secure your encrypted APIs: ")
+    password_confirmation = getpass.getpass("Confirm your password: ")
+    confirmation_chances = 0
+
+    while password != password_confirmation:
+        print_color("Passwords do not match. Please try again.", 91)
+        password = getpass.getpass("Set a new password to secure your encrypted APIs: ")
+        password_confirmation = getpass.getpass("Confirm your new password: ")
+        confirmation_chances += 1
+
+        if confirmation_chances == 2:
+            print_color("Maximum number of attempts reached!", 91)
+            sys.exit(1)
+
+    CredentialCLI().store(username, password)
+
+
+def show_credentials():
+    username = input("Enter your username to decrypt your APIs: ")
+    password = getpass.getpass("Enter your password to decrypt your APIs: ")
+    credential_cli = CredentialCLI()
+    return credential_cli.load(username, password)
 
 
 def reset_credentials():
-    """
-    Resets (deletes) all stored credentials and data related to the TwitterBot.
-    This function will remove all the stored, encrypted credentials and any
-    related configuration data, effectively resetting the application to its
-    initial state.
-
-    Returns:
-        None
-    """
-    cli = CredentialCLI()
-    cli.reset()
+    credential_cli = CredentialCLI()
+    print("Resetting credentials...")
+    credential_cli.reset()
 
 
-def post_tweet(creds, tweet_path):
-    """
-    Posts a tweet using the credentials and the path to the tweet's content.
-    This function handles the process of decrypting the stored credentials,
-    initializing the TwitterBot with these credentials, and posting the tweet.
+def post_tweet(tweet_path):
+    username = input("Enter your username to decrypt your APIs: ")
+    password = getpass.getpass("Enter your password to decrypt your APIs: ")
+    credential_cli = CredentialCLI()
+    apis = credential_cli.load(username, password)
 
-    Args:
-        creds (str): Combined username and password in 'username:password' format,
-                     used for decrypting the stored Twitter API credentials.
-        tweet_path (str): The file path containing the tweet's content to be posted.
-
-    Returns:
-        str: A message indicating the successful posting of the tweet or an error message.
-    """
-    username, password = creds.split(":")
-    cli = CredentialCLI()
-    apis = cli.load(username, password)
     if not apis:
-        raise Exception("Invalid credentials")
-    bot = TwitterBot(apis)
-    reading_post_file = bot.read_post_file(tweet_path)
-    tweeted_id = bot.post_tweet(tweet_path)
-    bot.save_tweet_info(tweet_id=tweeted_id, message=reading_post_file)
-    return f"Tweeted:\n{reading_post_file}\n"
+        raise Exception("Invalid credentials.")
+
+    twitter_bot = TwitterBot(apis)
+    post_content = twitter_bot.read_post_file(tweet_path)
+    tweeted_id = twitter_bot.post_tweet(tweet_path)
+    twitter_bot.save_tweet_info(tweet_id=tweeted_id, message=post_content)
+    print("Twitter post:")
+    print_color(f"{post_content}\n", 93)
 
 
-def delete_tweet(creds, tweet_id):
-    """
-    Deletes a tweet using the credentials and the tweet ID. This function
-    handles the process of decrypting the stored credentials, initializing the
-    TwitterBot with these credentials, and deleting the specified tweet.
 
-    Args:
-        creds (str): Combined username and password in 'username:password' format,
-                     used for decrypting the stored Twitter API credentials.
-        tweet_id (str): The ID of the tweet to be deleted.
+def delete_tweet(tweet_id):
+    username = input("Enter your username to decrypt your APIs: ")
+    password = getpass.getpass("Enter your password to decrypt your APIs: ")
+    credential_cli = CredentialCLI()
+    apis = credential_cli.load(username, password)
 
-    Returns:
-        str: A message indicating the successful deletion of the tweet or an error message.
-    """
-    username, password = creds.split(":")
-    cli = CredentialCLI()
-    apis = cli.load(username, password)
     if not apis:
-        raise Exception("Invalid credentials")
-    bot = TwitterBot(apis)
-    bot.delete_tweet(tweet_id)
-    bot.save_tweet_info(tweet_id, delete=True)
-    return "Tweet deleted."
+        raise Exception("Invalid credentials.")
+
+    twitter_bot = TwitterBot(apis)
+    twitter_bot.delete_tweet(tweet_id)
+    twitter_bot.save_tweet_info(tweet_id, delete=True)
+    print_color("Tweet successfully deleted.", 93)
+    

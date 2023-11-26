@@ -3,13 +3,13 @@
 
 # xpost - Python CLI for Twitter Operations
 
-xpost is a command-line interface (CLI) Python package for interacting with Twitter. It allows users to tweet, store authentication credentials securely, and delete tweets.
+xpost is a command-line interface (CLI) Python package for interacting with Twitter. It allows users to tweet, add users, store API credentials securely, and delete tweets.
 
 ## Features
 
-- **Tweeting**: Post tweets directly from the command line.
-- **Credential Storage**: Securely store your Twitter authentication credentials.
-- **Tweet Deletion**: Delete tweets easily.
+- **Tweeting**: Effortlessly post tweets from the command line.
+- **Credential Storage**: Securely encrypt and store your Twitter API credentials using the robust `PBKDF2HMAC` algorithms, ensuring security.
+- **Tweet Deletion**: Conveniently delete tweets with a simple command.
 
 ## Installation
 
@@ -19,133 +19,111 @@ Install xpost using pip:
 pip install xpost
 ```
 
+Verify the installation by checking the versio: 
+```bash
+xpost --version
+```
+
 ## Usage
 
-### Help
-`tweet-config -h`
-```bash
-$ tweet-config -h
-usage: tweet-config [-h] {store,reset} ...
-
-Twitter Bot CLI - Configuration Operations
-
-positional arguments:
-  {store,reset}
-
-optional arguments:
-  -h, --help     show this help message and exit
-```
-
-
-`tweet -h
-`
-```bash
-$ tweet -h
-usage: tweet [-h] [--creds CREDS] [--post POST] [--delete DELETE]
-
-Twitter Bot CLI - Tweeting Operations
-
-optional arguments:
-  -h, --help       show this help message and exit
-  --creds CREDS    Provide username and password in format username:password
-  --post POST      Path to the tweet file
-  --delete DELETE  Tweet ID to delete
-```
-
-### Storing Authentication Credentials
-
-Store your Twitter authentication credentials securely with the `tweet-config store` command. Input your username, password, and the required Twitter API credentials as prompted.
+### Adding user Authentication Credentials
+Securely store your Twitter API credentials:
 
 ```bash
-# Start the process to store credentials
-$ tweet-config store nameusr wordpass
+$ x-config add_user
+Enter a username to encrypt your APIs: usrDarwin
+Set a password to secure your encrypted APIs:
+Confirm your password:
 Enter CLIENT_ID: client_id
 Enter CLIENT_SECRET: client_secret
 Enter API_KEY: api_key
-Enter API_KEY_SECRET: api_key_secret
-Enter BEARER_TOKEN: bearer_token
-Enter ACCESS_TOKEN: access_token
-Enter ACCESS_TOKEN_SECRET: access_token_secret
-Your encrypted data is: b'gAAAAABlXwDpvIDqeRv_ZGroxjHEixflTzRChT9tdftSf6egl1k5gQWfghcsEMNkqGbS0FH2g7YsN9WhMNZLSvKOzUqdbm_Hbo279K8B-OwUc2UqhAxPiNdj-RhwUIFXs5G3ZJrHQDixh-O6JzSCbjJKBo9-7Hdf0bU3h5X8_SNJOh6fcxOnK1tyE1WZ-bkke0vu2h0_ZCl9_vGXRLRLdKpYxiAl07tFmMcceeuRb7q1ZE1zyjBMmdUcWjmAzwMkMYdW5NLtj-MS3eEwyLO-x9LEYMLgIWYBVjezk1anGDwerHrt4eI_MJn9DYuRAPw8Hzy7MAJEKezJgNYOXg8p9TY3YXDHCwm4vczqMW0arpFFfLR4s_dDMaYGVEgnSMTKa_yLQ-MytLBJ'
-Saving your encrypted data at: ~/.tweet
-Credentials encrypted and stored successfully.
-```
+Enter API_KEY_SECRET: apiKey
+Enter BEARER_TOKEN: bTokn
+Enter ACCESS_TOKEN: aTokn
+Enter ACCESS_TOKEN_SECRET: aTokn_secret
+Saving your encrypted data...
+-Credentials encrypted and stored successfully.
+Saving completed. Data stored at: ~/.tweet
 
-#### Caution
-Note: The above command presents a significant security risk because your Bash history records your `username` and `password`, which are used to encrypt the APIs. Therefore, it is strongly recommended to delete your Bash history to protect sensitive information.
-
-```bash
-history -d $(history 1 | awk '{print $1}')
-```
-
-Your encrypted credentials will be saved at `~/.tweet`.
-```bash
-$ ls ~/.tweet
-nameusr_encrypted_credentials
+User credentials successfully added.
 ```
 
 ### Viewing Stored Credentials
-
-To view your stored credentials:
-
+Check your encrypted credentials:
 ```bash
-ls ~/.tweet
-cat ~/.tweet/<username>_encrypted_credentials
+$ ls ~/.tweet
+```
+Or view decrypted credentials:
+```python
+>>> import xpost as x
+>>> x.show_credentials()
+Enter your username to decrypt your APIs: test_usr
+Enter your password to decrypt your APIs:
+{'CLIENT_ID': 'client_id', 'CLIENT_SECRET': 'client_secret', 'API_KEY': 'api_key', 'API_KEY_SECRET': 'apiKey', 'BEARER_TOKEN': 'bTokn', 'ACCESS_TOKEN': 'aTokn', 'ACCESS_TOKEN_SECRET': 'aTokn_secret'}
 ```
 
 
-To delete all stored credentials:
 ### Reset your APIs
+
+Permanently delete all stored credentials:
+
 
 To reset your APIs
 ```bash
-$ tweet-config reset
-You want to delete all the data [Y/n]: y
-Are you absolutely sure? This action is not recommended and cannot be undone. It will also delete your production API keys. To confirm deletion, type 'Y'. To cancel, type 'N': y
+$ x-config reset
+Do you want to delete all data? [Y/n]: Y
+WARNING: This will permanently delete all data, including production API keys. Confirm with 'Y' or cancel with 'N': Y
+Processing deletion....
+
 All user files in ~/.tweet have been successfully deleted.
+Data deletion successfull.
 ```
 
 ## Command Usage Examples
 
-Use the `tweet` command to perform tweeting operations. Below are examples of how to use the command:
+Use the `x` command to perform tweeting operations. Below are examples of how to use the command:
 
 ### Posting a Tweet
 
-To post a tweet directly with a message:
+To post a tweet directly message or from a text file:
 
 
 ```bash
-$ tweet --creds <username>:<password> --post "Your message to be tweeted"
-$ tweet --creds <username>:<password> --post  "path/to/text/file.txt"
+$ x --post "Your message to be tweeted"
+$ x --post  "path/to/text/file.txt"
 ```
 
 Important: The username and password you provide are used for decrypting your encrypted API credentials.
 
 
 ```bash
-$ tweet --creds usrName:passWord@69 --post "This is your xpost tweet!"
-INFO:root:Tweet successfully posted. Tweet ID: 1727582713442689485
-
-Tweeted:
-This is your xpost tweet!
+$ x --post "Hello, X!"
+Enter your username to decrypt your saved APIs: test_usr
+Enter your password to decrypt your saved APIs:
+INFO:root:Tweet successfully posted. Tweet ID: 1728786247492247770
+Twitter post:
+Hello, X!
 
 INFO:root:Tweet info saved to the database.
-Tweet URL: https://twitter.com/eulerDavinci/status/1727582713442689485
+Tweet URL: https://twitter.com/eulerDavinci/status/1728786247492247770
 ```
 
 
 ### Deleting a Tweet
 
-To delete a tweet:
+Remove a tweet by its ID: 
 
 ```bash
-tweet --creds <username>:<password> --delete <Tweet ID>
+$ x --delete <Tweet ID>
 ```
 
 ```bash
-$ tweet --creds usrName:passWord@69 --delete 1727582713442689485
+$ x --delete 1728786247492247770
+Enter your username to decrypt your saved APIs: test_usr
+Enter your password to decrypt your saved APIs:
 INFO:root:Tweet deleted successfully from twitter.com
-INFO:root:Tweet with ID 1727582713442689485 removed from database.
+INFO:root:Tweet with ID 1728786247492247770 removed from database.
+Tweet successfully deleted.
 ```
 
 
@@ -155,10 +133,35 @@ INFO:root:Tweet with ID 1727582713442689485 removed from database.
 xpost is released under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
 ## Contributions
+Contributions are welcome from anyone, even if you are new to open source. If you are new and looking for some way to contribute, a good place to start is documentation and docstring.
 
-Contributions are welcome! Please read our contributing guidelines before submitting pull requests.
+Please note that all participants in this project are expected to follow our Code of Conduct. By participating in this project you agree to abide by its terms. See [CODE OF CONDUCTS](CODE_OF_CONDUCT.md)
+
 
 ## Support
+For support, please open an issue on the GitHub repository.
 
-For support, please open an issue on the GitHub repository or contact.
+## Tests
+To ensure the functionality of `xpost`, you can run the following test commands. These commands test various functionalities of the xpost package.
 
+First, import the necessary functions from `xpost`:
+
+```python
+from xpost import *
+```
+### Testing Configuration Commands
+Use these functions to test configuration-related operations:
+ * Adding a User: Adds a new user and stores their credentials. `add_user()`
+ * Resets all stored credentials. `reset_credentials()`
+ * Display the stored credentials. `show_credentials()`
+
+### Testing Tweet Operations
+To test tweeting functionalities, use these functions: 
+ * Posts a new tweet. `post_tweet()`
+ * Deletes an existing tweet. `delete_tweet()`
+
+
+## Feedback and Feature Requests
+Your feedback is incredibly valuable to us! For any feedback or feature requests, please reach out via email. We appreciate your input in enhancing xpost.
+
+Please note, `xpost` is intentionally designed with a focus on basic features. This is to minimize distractions often associated with social media platforms, allowing users to concentrate on meaningful content creation. Our goal is to facilitate a simplified and efficient tweeting experience, enabling users to reflect on their past posts in the future.

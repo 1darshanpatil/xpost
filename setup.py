@@ -1,11 +1,10 @@
 from setuptools import setup, find_packages
-
+from xpost import __version__
 with open("README.md", encoding="utf-8") as f:
     long_description = f.read()
-
 setup(
     name="xpost",
-    version="0.0.2",
+    version=__version__,
     author="Darshan P.",
     author_email="drshnp@outlook.com",
     license="MIT",
@@ -16,13 +15,14 @@ setup(
     packages=find_packages(),
     install_requires=[
         "tweepy>=3.10.0",
-        "fire>=0.4.0",
+        "fire>=0.5.0",
         "cryptography>=3.4.7",
     ],
     entry_points={
         "console_scripts": [
-            "tweet=xpost.cli:tweet",
-            "tweet-config=xpost.cli:tweet_config",
+            "xpost=xpost.cli:virgin",
+            "x=xpost.cli:tweet",
+            "x-config=xpost.cli:tweet_config",
         ],
     },
     classifiers=[
