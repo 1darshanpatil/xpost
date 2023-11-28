@@ -1,5 +1,4 @@
-![xpost-logo.png](xpost-logo.png)
-
+![xpost-logo.png](https://github.com/1darshanpatil/xpost/blob/8647c9a5e844e219cad7dba8dd09cb9297f0eff1/xpost-logo.png)
 
 # xpost - Python CLI for Twitter Operations
 
