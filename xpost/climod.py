@@ -12,6 +12,17 @@ def print_color(txt, color_colde):
 
 
 def add_user():
+    """
+    Adds new user credentials for Twitter API access.
+
+    This function prompts the user for a username and password, confirms the password,
+    and stores the encrypted credentials using the CredentialCLI class.
+
+    Notes
+    -----
+    The function ensures password confirmation for security. If the password confirmation
+    fails twice, the function exits to prevent repeated unsuccessful attempts.
+    """    
     username = input("Enter a username to encrypt your APIs: ")
     password = getpass.getpass("Set a password to secure your encrypted APIs: ")
     password_confirmation = getpass.getpass("Confirm your password: ")
@@ -31,6 +42,17 @@ def add_user():
 
 
 def show_credentials():
+    """
+    Displays the decrypted credentials of a user.
+
+    Prompts the user for a username and password, then decrypts and returns the
+    stored credentials.
+
+    Returns
+    -------
+    dict
+        A dictionary containing the decrypted credentials, if successful.
+    """    
     username = input("Enter your username to decrypt your APIs: ")
     password = getpass.getpass("Enter your password to decrypt your APIs: ")
     credential_cli = CredentialCLI()
@@ -38,12 +60,32 @@ def show_credentials():
 
 
 def reset_credentials():
+    """
+    Resets the stored credentials for all users.
+
+    This function clears all stored credentials by calling the reset method of the
+    CredentialCLI class. It provides a command line interface for credential reset.
+    """    
     credential_cli = CredentialCLI()
     print("Resetting credentials...")
     credential_cli.reset()
 
 
 def post_tweet(tweet_path):
+    """
+    Posts a tweet using the specified tweet file path.
+
+    Parameters
+    ----------
+    tweet_path : str
+        The path to the file containing the tweet content.
+
+    Notes
+    -----
+    Prompts the user for credentials, reads the tweet content from the specified file,
+    posts the tweet, and then saves the tweet information. The function provides a
+    command line interface for tweeting.
+    """
     username = input("Enter your username to decrypt your APIs: ")
     password = getpass.getpass("Enter your password to decrypt your APIs: ")
     credential_cli = CredentialCLI()
@@ -62,6 +104,20 @@ def post_tweet(tweet_path):
 
 
 def delete_tweet(tweet_id):
+    """
+    Deletes a tweet based on the specified tweet ID.
+
+    Parameters
+    ----------
+    tweet_id : str
+        The ID of the tweet to be deleted.
+
+    Notes
+    -----
+    Prompts the user for credentials, then deletes the tweet corresponding to the
+    provided tweet ID. It also saves the information that the tweet has been deleted.
+    The function provides a command line interface for tweet deletion.
+    """    
     username = input("Enter your username to decrypt your APIs: ")
     password = getpass.getpass("Enter your password to decrypt your APIs: ")
     credential_cli = CredentialCLI()
