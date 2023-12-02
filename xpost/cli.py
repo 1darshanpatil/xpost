@@ -11,10 +11,35 @@ from xpost import __version__
 import getpass
 
 def print_color(txt, color_colde):
+    """
+    Prints the given text in the specified color.
+
+    Parameters
+    ==========
+    txt : str
+        The text to be printed.
+    color_code : int
+        The ANSI color code to apply to the text.
+
+    Notes
+    =====
+    Utilizes the 'colored' function to apply ANSI color codes to the text.
+    """
     print(colored(txt, color_colde))
 
 
 def tweet():
+    """
+    Handles the tweet operations for the Twitter Bot CLI.
+
+    This function allows the user to post or delete tweets using command line arguments.
+
+    Notes
+    -----
+    The user is prompted to enter credentials which are then used to perform
+    the requested tweet operations. The function handles both posting new tweets
+    and deleting existing ones.
+    """    
     parser = argparse.ArgumentParser(
         description="Twitter Bot CLI - Tweeting Operations"
     )
@@ -53,6 +78,17 @@ def tweet():
 
 
 def tweet_config():
+    """
+    Manages the configuration operations for the Twitter Bot CLI.
+
+    This function provides subcommands for adding user credentials and resetting
+    the configuration.
+
+    Notes
+    -----
+    The function uses subparsers to handle different configuration commands like
+    'add_user' and 'reset'.
+    """    
     parser = argparse.ArgumentParser(
         description="Twitter Bot CLI - Configuration Operations"
     )
@@ -70,6 +106,20 @@ def tweet_config():
 
 
 def add_user_credentials():
+    """
+    Adds new user credentials for the Twitter Bot.
+
+    Prompts the user for a username and password, and stores the encrypted credentials.
+
+    Notes
+    -----
+    If the password confirmation fails twice, the function exits. Successfully added
+    credentials are encrypted and stored.
+
+    Example:
+        $ x-config add_user
+        $ x-config reset
+    """    
     username = input("Enter a username to encrypt your APIs: ")
     password = getpass.getpass("Set a password to secure your encrypted APIs: ")
     password_confirmation = getpass.getpass("Confirm your password: ")
@@ -89,6 +139,18 @@ def add_user_credentials():
 
 
 def virgin():
+    """
+    Provides version information for the xpost application.
+
+    This function is a part of the CLI and responds to the '--version' argument.
+
+    Notes
+    -----
+    Utilizes the global '__version__' variable to display the current version of xpost.
+
+    Example: 
+    $ xpost --version
+    """    
     parser = argparse.ArgumentParser(description="xpost --version")
     parser.add_argument("--version", action='version', version=f'xpost {__version__}')
     args = parser.parse_args()
