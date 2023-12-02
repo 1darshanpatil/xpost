@@ -10,6 +10,7 @@ import fire
 from xpost import __version__
 import getpass
 
+
 def print_color(txt, color_colde):
     """
     Prints the given text in the specified color.
@@ -39,7 +40,7 @@ def tweet():
     The user is prompted to enter credentials which are then used to perform
     the requested tweet operations. The function handles both posting new tweets
     and deleting existing ones.
-    """    
+    """
     parser = argparse.ArgumentParser(
         description="Twitter Bot CLI - Tweeting Operations"
     )
@@ -88,7 +89,7 @@ def tweet_config():
     -----
     The function uses subparsers to handle different configuration commands like
     'add_user' and 'reset'.
-    """    
+    """
     parser = argparse.ArgumentParser(
         description="Twitter Bot CLI - Configuration Operations"
     )
@@ -100,8 +101,8 @@ def tweet_config():
     if args.config_command == "add_user":
         add_user_credentials()
     elif args.config_command == "reset":
-        files_deleted= CredentialCLI().reset()
-        if files_deleted == 'success':
+        files_deleted = CredentialCLI().reset()
+        if files_deleted == "success":
             print_color("Credentials successfully reset.", 92)
 
 
@@ -119,7 +120,7 @@ def add_user_credentials():
     Example:
         $ x-config add_user
         $ x-config reset
-    """    
+    """
     username = input("Enter a username to encrypt your APIs: ")
     password = getpass.getpass("Set a password to secure your encrypted APIs: ")
     password_confirmation = getpass.getpass("Confirm your password: ")
@@ -148,12 +149,13 @@ def virgin():
     -----
     Utilizes the global '__version__' variable to display the current version of xpost.
 
-    Example: 
+    Example:
     $ xpost --version
-    """    
+    """
     parser = argparse.ArgumentParser(description="xpost --version")
-    parser.add_argument("--version", action='version', version=f'xpost {__version__}')
+    parser.add_argument("--version", action="version", version=f"xpost {__version__}")
     args = parser.parse_args()
+
 
 if __name__ == "__main__":
     fire.Fire({"tweet": tweet, "tweet_config": tweet_config, "virgin": virgin})
