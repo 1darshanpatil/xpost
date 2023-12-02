@@ -17,11 +17,12 @@ def colored(text, color_code):
     """
     return f"\033[{color_code}m{text}\033[0m"
 
+
 class CredentialManager:
     """
     Manages the encryption and decryption of Twitter API credentials.
 
-    This class provides methods to prompt for user credentials, encrypt them, 
+    This class provides methods to prompt for user credentials, encrypt them,
     save them to a file, and decrypt them from the file.
 
     Attributes
@@ -35,20 +36,19 @@ class CredentialManager:
     =======
     prompt_for_credentials()
         Prompts the user for Twitter API credentials and returns them in a dictionary.
-    Save_credentials(encrypted_data, password) 
+    Save_credentials(encrypted_data, password)
         Saves the encrypted credentials to a file.
     load_credentials(password)
         Loads and decrypts the credentials from a file.
     """
+
     def __init__(self, username):
         """
         username : str
             The username associated with the credentials.
         """
         self.username = username
-        self.credentials_file = os.path.expanduser(
-            f"~/.tweet/{username}-PBKDF2HMAC"
-        )
+        self.credentials_file = os.path.expanduser(f"~/.tweet/{username}-PBKDF2HMAC")
 
     @staticmethod
     def generate_key(password: str):
@@ -90,7 +90,7 @@ class CredentialManager:
             The data to encrypt.
         password : str
             The password used for encryption
-        
+
         Returns
         =======
         bytes
@@ -126,7 +126,7 @@ class CredentialManager:
     def prompt_for_credentials(self):
         """
         Prompts the user to input Twitter API credentials.
-        
+
         Returns
         =======
         dict
@@ -162,7 +162,7 @@ class CredentialManager:
         password : str
             The password used for encryption.
 
-        Notes 
+        Notes
         =====
         The credentials are encrypted and stored in a file specific to the username.
         """
@@ -182,9 +182,9 @@ class CredentialManager:
             The password used for decryption.
         Returns
         =======
-        dict 
+        dict
             The decrypt credentials.
-        
+
         Raises
         ======
         FileNotFoundError
@@ -211,7 +211,7 @@ def force_delete():
     """
     Deletes the ~/.tweet directory and all its contents.
 
-    This function forcefully removes the directory where user credentials and other data are stored. 
+    This function forcefully removes the directory where user credentials and other data are stored.
     It's used to completely reset the environment.
 
     Returns
@@ -219,7 +219,7 @@ def force_delete():
 
     str
         'success' if the deletion is successful, None if there's no ~/.tweet directory.
-    
+
     Raises
     ======
     Exception
@@ -239,8 +239,6 @@ def force_delete():
             return None
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-
-
 
 
 class CredentialCLI:
@@ -264,6 +262,7 @@ class CredentialCLI:
     reset()
         Resets the credentials by deleting all stored data.
     """
+
     def __init__(self):
         self.manager = None
 
@@ -286,7 +285,7 @@ class CredentialCLI:
         Notes
         -----
         If an error occurs during loading, the error message is printed.
-        """    
+        """
         self.manager = CredentialManager(usr)
         try:
             loaded_creds = self.manager.load_credentials(passwd)
@@ -294,7 +293,6 @@ class CredentialCLI:
         #            print("Credentials: ", loaded_creds)
         except Exception as e:
             print(f"Error: {e}")
-
 
     def store(self, usr, passwd):
         """
@@ -311,21 +309,20 @@ class CredentialCLI:
         -----
         This method prompts the user for credential details, encrypts them, and then
         saves them to a file. Visual feedback is provided during the saving process.
-        """        
+        """
         self.manager = CredentialManager(usr)
         taking_apis = self.manager.prompt_for_credentials()
         encrypted_data = self.manager.encrypt_data(json.dumps(taking_apis), passwd)
-        
+
         print(colored("Saving your encrypted data...", 92))
-        for char in ['\\', '|', '/', '-']:
+        for char in ["\\", "|", "/", "-"]:
             print(f"\r{char}", end="")
             time.sleep(0.75)
-        
+
         self.manager.save_credentials(encrypted_data, passwd)
         print(colored("\rSaving completed. Data stored at: ~/.tweet", 92))
         print("")
         # Reminder or warning message can be added here if needed, possibly in a different color.
-
 
     def reset(self):
         """
@@ -335,26 +332,28 @@ class CredentialCLI:
         -----
         This method prompts the user for confirmation before deleting data.
         It provides visual feedback during the deletion process.
-        """    
+        """
         delete_data = input("Do you want to delete all data? [Y/n]: ")
         if delete_data.lower() == "y":
-            red_warning = colored("WARNING: This will permanently delete all data, including production API keys. Confirm with 'Y' or cancel with 'N': ", 91)
+            red_warning = colored(
+                "WARNING: This will permanently delete all data, including production API keys. Confirm with 'Y' or cancel with 'N': ",
+                91,
+            )
             confirm_delete = input(red_warning)
-            
+
             if confirm_delete.lower() in ["y", "yes"]:
                 print("Processing deletion", end="")
-                for char in ['.', '..', '...', '....']:
+                for char in [".", "..", "...", "...."]:
                     print(f"\rProcessing deletion{char}", end="")
                     time.sleep(0.5)
                 print("\n")
                 files_deleted = force_delete()
-                if files_deleted == 'success':
-                    print(colored("\rData deletion successfull.       ", 92))   
+                if files_deleted == "success":
+                    print(colored("\rData deletion successfull.       ", 92))
             else:
                 print(colored("Operation cancelled. Your files remain at ~/.tweet", 92))
         else:
             print(colored("Operation cancelled. Your files remain at ~/.tweet", 92))
-
 
 
 if __name__ == "__main__":
