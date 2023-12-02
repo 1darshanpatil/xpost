@@ -32,12 +32,12 @@ class TwitterBot:
     ======
 
     Exception
-        Raised during the initialization if there is an error in reading credentials, 
+        Raised during the initialization if there is an error in reading credentials,
         authenticating the client, or in any of the Twitter API interactions.
 
     Methods
     =======
-    
+
     read_credentials
         Reads the Twitter API credentials from the credentials file.
     authenticate
@@ -55,19 +55,20 @@ class TwitterBot:
 
     See Also
     ========
-    
+
     tweepy.Client: The Tweepy library client class for accessing Twitter API.
 
     Notes
     =====
 
-    This class is designed to facilitate some of the common Twitter operations via 
-    the Twitter API. It requires proper authentication using Twitter API credentials. 
+    This class is designed to facilitate some of the common Twitter operations via
+    the Twitter API. It requires proper authentication using Twitter API credentials.
     It allows reading tweets from a file, posting tweets, deleting tweets, and saving tweet
-    information. Error handling is implemented for all interactions with the TWitter API 
+    information. Error handling is implemented for all interactions with the TWitter API
     to ensure smooth execution.
 
     """
+
     def __init__(self, creds_file):
         self.creds_file = creds_file
         # self.creds = self.read_credentials()
@@ -141,7 +142,7 @@ class TwitterBot:
            If the specified post file does not exist.
         Exception
             If there is an error reading the post file.
-        
+
         Returns
         =======
         str
@@ -169,7 +170,7 @@ class TwitterBot:
         ======
         Exception
             If there is an error posting the tweet or if the tweet the character limit.
-        
+
         Returns
         =======
         str
@@ -231,7 +232,7 @@ class TwitterBot:
 
         Notes
         =====
-        This method either appends the tweet information to a file or removes the specified tweet's information from the file, based 
+        This method either appends the tweet information to a file or removes the specified tweet's information from the file, based
         on the 'delete' parameter.
         """
         if delete == True:
@@ -285,10 +286,10 @@ class TwitterBot:
         ==========
         tweet_id : str
             The ID of the tweet to be deleted.
-        
+
         Raises
         ======
-        Exception  
+        Exception
             If there is an error during the tweet deletion.
 
         Notes
@@ -307,7 +308,7 @@ def cli():
     """
     Command Line Interface for the TWitterBot.
 
-    This function sets up an argument parser and processes command line arguments to 
+    This function sets up an argument parser and processes command line arguments to
     perform operations like posting and deleting tweets.
 
     Parameters
@@ -325,8 +326,8 @@ def cli():
 
     Notes
     -----
-    The function supports command line arguments for specifying the credentials file, 
-    the tweet post file, and the tweet ID for deletion. Based on the provided arguments, it either posts a new tweet 
+    The function supports command line arguments for specifying the credentials file,
+    the tweet post file, and the tweet ID for deletion. Based on the provided arguments, it either posts a new tweet
     or deletes an existing tweet.
 
 
