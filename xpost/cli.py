@@ -126,12 +126,12 @@ def add_user_credentials():
     confirmation_chances = 0
 
     while password != password_confirmation:
-        print("Passwords do not match. Please try again.")
+        print_color("Passwords do not match. Please try again.", 91)
         password = getpass.getpass("Set a new password to secure your encrypted APIs: ")
         password_confirmation = getpass.getpass("Confirm your new password: ")
         confirmation_chances += 1
         if confirmation_chances == 2:
-            print("Maximum attempt limit reached. Exiting.")
+            print_color("Maximum attempt limit reached. Exiting.", 91)
             sys.exit(1)
 
     CredentialCLI().store(username, password)

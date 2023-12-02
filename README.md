@@ -1,4 +1,4 @@
-![xpost-logo.png](https://github.com/1darshanpatil/xpost/blob/8647c9a5e844e219cad7dba8dd09cb9297f0eff1/xpost-logo.png)
+![xpost-logo.png](https://github.com/1darshanpatil/foundMyOldPomodoroProject/assets/72539638/0620222e-0ea1-4a27-904b-5486a503a184)
 
 # xpost - Python CLI for Twitter Operations
 
