@@ -22,7 +22,7 @@ def add_user():
     -----
     The function ensures password confirmation for security. If the password confirmation
     fails twice, the function exits to prevent repeated unsuccessful attempts.
-    """    
+    """
     username = input("Enter a username to encrypt your APIs: ")
     password = getpass.getpass("Set a password to secure your encrypted APIs: ")
     password_confirmation = getpass.getpass("Confirm your password: ")
@@ -52,7 +52,7 @@ def show_credentials():
     -------
     dict
         A dictionary containing the decrypted credentials, if successful.
-    """    
+    """
     username = input("Enter your username to decrypt your APIs: ")
     password = getpass.getpass("Enter your password to decrypt your APIs: ")
     credential_cli = CredentialCLI()
@@ -65,7 +65,7 @@ def reset_credentials():
 
     This function clears all stored credentials by calling the reset method of the
     CredentialCLI class. It provides a command line interface for credential reset.
-    """    
+    """
     credential_cli = CredentialCLI()
     print("Resetting credentials...")
     credential_cli.reset()
@@ -102,7 +102,6 @@ def post_tweet(tweet_path):
     print_color(f"{post_content}\n", 93)
 
 
-
 def delete_tweet(tweet_id):
     """
     Deletes a tweet based on the specified tweet ID.
@@ -117,7 +116,7 @@ def delete_tweet(tweet_id):
     Prompts the user for credentials, then deletes the tweet corresponding to the
     provided tweet ID. It also saves the information that the tweet has been deleted.
     The function provides a command line interface for tweet deletion.
-    """    
+    """
     username = input("Enter your username to decrypt your APIs: ")
     password = getpass.getpass("Enter your password to decrypt your APIs: ")
     credential_cli = CredentialCLI()
@@ -130,4 +129,3 @@ def delete_tweet(tweet_id):
     twitter_bot.delete_tweet(tweet_id)
     twitter_bot.save_tweet_info(tweet_id, delete=True)
     print_color("Tweet successfully deleted.", 93)
-    
